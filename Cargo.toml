@@ -16,7 +16,8 @@ name = "zero2prod"
 anyhow = "1.0.71"
 axum = "0.6.18"
 hyper = "0.14.26"
-serde = "1.0.160"
+serde = { version = "1.0.160", features = ["derive"] }
+sqlx = { version = "0.6.3", features = ["postgres", "uuid", "chrono", "migrate", "macros", "runtime-tokio-native-tls"] }
 tokio = { version = "1.28.0", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"

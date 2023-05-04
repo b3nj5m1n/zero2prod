@@ -30,7 +30,7 @@
           zero2prod =
             let
               craneLib = crane.lib.${system}.overrideToolchain
-                fenix.packages.${system}.minimal.toolchain;
+                fenix.packages.${system}.stable.toolchain;
             in
               craneLib.buildPackage {
                 nativeBuildInputs = with pkgs; [pkg-config openssl];
