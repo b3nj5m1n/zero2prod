@@ -15,6 +15,7 @@ name = "zero2prod"
 [dependencies]
 anyhow = "1.0.71"
 axum = "0.6.18"
+config = "0.13.3"
 hyper = "0.14.26"
 serde = { version = "1.0.160", features = ["derive"] }
 sqlx = { version = "0.6.3", features = ["postgres", "uuid", "chrono", "migrate", "macros", "runtime-tokio-native-tls"] }
