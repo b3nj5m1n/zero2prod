@@ -1,9 +1,10 @@
-use std::net::SocketAddr;
+use std::net::TcpListener;
 
 use anyhow::Result;
 use axum::{http::StatusCode, routing::get, Router};
 
 pub fn run(
+    listener: TcpListener,
 ) -> Result<axum::Server<hyper::server::conn::AddrIncoming, axum::routing::IntoMakeService<Router>>>
 {
     tracing_subscriber::fmt()
@@ -12,9 +13,8 @@ pub fn run(
 
     let app = Router::new().route("/health_check", get(health_check));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::info!("listening on {}", addr);
-    Ok(axum::Server::bind(&addr).serve(app.into_make_service()))
+    tracing::info!("listening on {}", listener.local_addr()?);
+    Ok(axum::Server::from_tcp(listener)?.serve(app.into_make_service()))
 }
 
 async fn health_check() -> StatusCode {
