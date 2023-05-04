@@ -5,6 +5,10 @@ use zero2prod::configuration::get_configuration;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    tracing_subscriber::fmt()
+        .pretty()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
     let config = get_configuration().expect("Failed to read config");
     let listener = TcpListener::bind(format!("127.0.0.1:{}", config.application_port))?;
     let config = get_configuration().expect("Failed to read configuration");
