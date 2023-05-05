@@ -15,7 +15,7 @@ name = "zero2prod"
 [dependencies]
 anyhow = "1.0.71"
 axum = "0.6.18"
-chrono = { version = "0.4.24", features = ["serde"] }
+chrono = { version = "0.4.24", default-features = false, features = ["serde", "clock"] }
 config = "0.13.3"
 hyper = "0.14.26"
 once_cell = "1.17.1"
