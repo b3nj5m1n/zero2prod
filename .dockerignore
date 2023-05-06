@@ -1,0 +1,11 @@
+.direnv
+.env
+.envrc
+target/
+tests/
+Dockerfile
+flake.lock
+flake.nix
+scripts/
+migrations/
+result
