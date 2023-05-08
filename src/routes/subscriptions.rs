@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use axum::{extract::State, http::StatusCode, Form};
 use chrono::Utc;
@@ -6,7 +8,10 @@ use sqlx::PgPool;
 use tracing::{error, instrument};
 use uuid::Uuid;
 
-use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
+use crate::{
+    domain::{NewSubscriber, SubscriberEmail, SubscriberName},
+    startup::AppState,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct FormData {
@@ -24,14 +29,17 @@ impl TryFrom<FormData> for NewSubscriber {
     }
 }
 
-#[instrument(name = "Adding new subscriber", skip(connection))]
-pub async fn subscribe(State(connection): State<PgPool>, Form(form): Form<FormData>) -> StatusCode {
+#[instrument(name = "Adding new subscriber", skip(state))]
+pub async fn subscribe(
+    State(state): State<Arc<AppState>>,
+    Form(form): Form<FormData>,
+) -> StatusCode {
     let new_subscriber = if let Ok(new_sub) = form.try_into() {
         new_sub
     } else {
         return StatusCode::BAD_REQUEST;
     };
-    match insert_subscriber(&connection, &new_subscriber).await {
+    match insert_subscriber(&state.connection, &new_subscriber).await {
         Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }

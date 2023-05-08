@@ -1,4 +1,4 @@
-use std::net::TcpListener;
+use std::{net::TcpListener, sync::Arc};
 
 use anyhow::Result;
 use axum::{
@@ -12,17 +12,27 @@ use tower_http::{
     ServiceBuilderExt,
 };
 
-use crate::routes::*;
+use crate::{email_client::EmailClient, routes::*};
+
+pub struct AppState {
+    pub connection: PgPool,
+    pub email_client: EmailClient,
+}
 
 pub fn run(
     listener: TcpListener,
     connection: PgPool,
+    email_client: EmailClient,
 ) -> Result<axum::Server<hyper::server::conn::AddrIncoming, axum::routing::IntoMakeService<Router>>>
 {
+    let state = AppState {
+        connection,
+        email_client,
+    };
     let app = Router::new()
         .route("/health_check", get(health_check))
         .route("/subscriptions", post(subscribe))
-        .with_state(connection)
+        .with_state(Arc::new(state))
         .layer(
             tower::ServiceBuilder::new()
                 .set_x_request_id(MakeRequestUuid)

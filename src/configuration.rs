@@ -7,10 +7,26 @@ use sqlx::{
     ConnectOptions,
 };
 
+use crate::domain::SubscriberEmail;
+
 #[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
+    pub email_client: EmailClientSettings,
+}
+
+#[derive(serde::Deserialize)]
+pub struct EmailClientSettings {
+    pub base_url: String,
+    pub sender_email: String,
+    pub api_key: Secret<String>,
+}
+
+impl EmailClientSettings {
+    pub fn sender(&self) -> Result<SubscriberEmail> {
+        SubscriberEmail::parse(self.sender_email.clone())
+    }
 }
 
 #[derive(serde::Deserialize)]
@@ -27,13 +43,13 @@ pub struct DatabaseSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
-    pub database_name: String,
+    pub name: String,
     pub require_ssl: bool,
 }
 
 impl DatabaseSettings {
     pub fn with_db(&self) -> PgConnectOptions {
-        let mut options = self.without_db().database(&self.database_name);
+        let mut options = self.without_db().database(&self.name);
         options.log_statements(tracing::log::LevelFilter::Debug);
         options
     }
@@ -58,7 +74,7 @@ pub fn get_configuration() -> Result<Settings> {
     let settings = settings.add_source(File::from(config_dir.join("base.toml")));
     let env = std::env::var("ZERO2PROD_ENV").unwrap_or_else(|_| "local".into());
     let settings = settings.add_source(File::from(config_dir.join(format!("{env}.toml"))));
-    let settings = settings.add_source(Environment::default().separator("_"));
+    let settings = settings.add_source(Environment::default().separator("__"));
 
     Ok(settings.build()?.try_deserialize::<Settings>()?)
 }

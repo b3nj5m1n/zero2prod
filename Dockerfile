@@ -18,5 +18,6 @@ RUN apt-get update -y \
 COPY --from=builder /app/target/release/zero2prod zero2prod
 COPY configuration configuration
 ENV ZERO2PROD_ENV production
+ENV EMAIL_CLIENT__API_KEY "abcdef"
 
-ENTRYPOINT ["./target/release/zero2prod"]
+ENTRYPOINT ["./zero2prod"]

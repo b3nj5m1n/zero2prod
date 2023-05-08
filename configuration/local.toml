@@ -1,4 +1,10 @@
+[email_client]
+base_url = "localhost"
+sender_email = "b3nj4m1n@gmx.net"
+api_key = "abcdef"
+
 [application]
 host = "127.0.0.1"
+
 [database]
 require_ssl = false

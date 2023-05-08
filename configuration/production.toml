@@ -1,4 +1,9 @@
+[email_client]
+base_url = "https://api.elasticemail.com/v2"
+sender_email = "b3nj4m1n@gmx.net"
+
 [application]
 host = "0.0.0.0"
+
 [database]
-require_ssl = false
+require_ssl = true

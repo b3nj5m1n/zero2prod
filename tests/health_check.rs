@@ -5,6 +5,7 @@ use sqlx::{types::Uuid, Connection, Executor, PgConnection, PgPool};
 
 use zero2prod::{
     configuration::{get_configuration, DatabaseSettings},
+    email_client::EmailClient,
     telemetry::{get_log_file, get_subscriber, init_subscriber},
 };
 
@@ -31,11 +32,19 @@ async fn spawn_app() -> TestApp {
     let addr = listener.local_addr().unwrap();
 
     let mut config = get_configuration().expect("Failed to read configuration");
-    config.database.database_name = Uuid::new_v4().to_string();
+    config.database.name = Uuid::new_v4().to_string();
 
     let connection_pool = configure_database(&config.database).await;
-    let server =
-        zero2prod::startup::run(listener, connection_pool.clone()).expect("Failed to bind address");
+
+    let sender_email = config.email_client.sender().expect("Invalid sender email");
+    let email_client = EmailClient::new(
+        config.email_client.base_url,
+        sender_email,
+        config.email_client.api_key,
+    );
+
+    let server = zero2prod::startup::run(listener, connection_pool.clone(), email_client)
+        .expect("Failed to bind address");
     let _ = tokio::spawn(server);
     TestApp {
         address: format!("http://{}", addr),
@@ -48,7 +57,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to connect to postgres");
     connection
-        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.name).as_str())
         .await
         .expect("Failed to create database");
 
