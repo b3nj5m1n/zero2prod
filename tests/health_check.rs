@@ -41,6 +41,7 @@ async fn spawn_app() -> TestApp {
         config.email_client.base_url,
         sender_email,
         config.email_client.api_key,
+        std::time::Duration::from_millis(200),
     );
 
     let server = zero2prod::startup::run(listener, connection_pool.clone(), email_client)

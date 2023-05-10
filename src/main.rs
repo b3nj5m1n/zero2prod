@@ -27,9 +27,10 @@ async fn main() -> std::io::Result<()> {
 
     let sender_email = config.email_client.sender().expect("Invalid sender email");
     let email_client = EmailClient::new(
-        config.email_client.base_url,
+        config.email_client.base_url.clone(),
         sender_email,
-        config.email_client.api_key,
+        config.email_client.api_key.clone(),
+        config.email_client.timeout(),
     );
 
     zero2prod::startup::run(listener, connection_pool, email_client)
