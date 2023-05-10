@@ -17,24 +17,24 @@ services:
     routes:
       - path: /
     envs:
-      - key: DATABASE_USERNAME
+      - key: DATABASE__USERNAME
         scope: RUN_TIME
         value: ${newsletter.USERNAME}
-      - key: DATABASE_PASSWORD
+      - key: DATABASE__PASSWORD
         scope: RUN_TIME
         value: ${newsletter.PASSWORD}
-      - key: DATABASE_HOST
+      - key: DATABASE__HOST
         scope: RUN_TIME
         value: ${newsletter.HOSTNAME}
-      - key: DATABASE_PORT
+      - key: DATABASE__PORT
         scope: RUN_TIME
         value: ${newsletter.PORT}
-      - key: DATABASE_NAME
+      - key: DATABASE__NAME
         scope: RUN_TIME
         value: ${newsletter.DATABASE}
-      - key: EMAIL_CLIENT__API_KEY
-        scope: RUN_TIME
-        value: ${ELASTICEMAIL_API_KEY}
+      # - key: EMAIL_CLIENT__API_KEY
+      #   scope: RUN_TIME
+      #   value: ${ELASTICEMAIL_API_KEY}
 databases:
   - engine: PG
     name: newsletter
