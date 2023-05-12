@@ -4,6 +4,7 @@ use sqlx::postgres::PgPoolOptions;
 use zero2prod::{
     configuration::get_configuration,
     email_client::EmailClient,
+    startup,
     telemetry::{get_log_file, get_subscriber, init_subscriber},
 };
 
@@ -18,23 +19,11 @@ async fn main() -> std::io::Result<()> {
 
     let config = get_configuration().expect("Failed to read config");
 
-    let listener = TcpListener::bind(format!(
-        "{}:{}",
-        config.application.host, config.application.port
-    ))?;
-    let config = get_configuration().expect("Failed to read configuration");
-    let connection_pool = PgPoolOptions::new().connect_lazy_with(config.database.with_db());
-
-    let sender_email = config.email_client.sender().expect("Invalid sender email");
-    let email_client = EmailClient::new(
-        config.email_client.base_url.clone(),
-        sender_email,
-        config.email_client.api_key.clone(),
-        config.email_client.timeout(),
-    );
-
-    zero2prod::startup::run(listener, connection_pool, email_client)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?
+    let app = zero2prod::startup::App::build(&config)
         .await
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    app.run_until_stopped()
+        .await
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    Ok(())
 }
