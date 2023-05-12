@@ -1,10 +1,5 @@
-use std::net::TcpListener;
-
-use sqlx::postgres::PgPoolOptions;
 use zero2prod::{
     configuration::get_configuration,
-    email_client::EmailClient,
-    startup,
     telemetry::{get_log_file, get_subscriber, init_subscriber},
 };
 
